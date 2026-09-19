@@ -1,6 +1,6 @@
 # Weiss Â· My Progress
 
-An Android/iOS personal WFIRS-S tracker built with Expo and React Native. A browser preview is included for development.
+An Android/iOS personal WFIRS-S tracker built with React Native. A browser preview is included for development.
 
 **Free for noncommercial use.** Original application code is source-available under [PolyForm Noncommercial 1.0.0](LICENSE.md). You may use, modify and share it for the purposes permitted by that license. Commercial use is not granted. This is not an OSI open-source license. The WFIRS-S questionnaire retains its separate copyright and terms.
 
@@ -19,7 +19,7 @@ N/A and unanswered items are excluded from scoring. Completion requires all 69 r
 
 ## Development
 
-Requires Node 20.19+ and pnpm. This project pins Expo SDK 54 for reproducibility; use a compatible development build or Expo Go version.
+Requires Node 22 and pnpm 11.19.0. Native framework dependencies are pinned for reproducible builds.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -32,24 +32,31 @@ pnpm export
 
 ## Monthly reminders
 
-The Reminders tab schedules one repeating local notification on Android/iOS. Users choose a monthly day (1–28) and local time, enable notifications explicitly, edit the schedule, or turn it off. Updates reuse a stable notification ID. Notification taps open the survey and retain any saved draft, including when the app starts from a closed state. The OS notification schedule is the source of truth; no backend, push token or assessment upload is needed. Notification content contains no answers or scores.
+The Reminders tab schedules one repeating local notification on Android/iOS. Users choose a monthly day (1-28) and local time, enable notifications explicitly, edit the schedule, or turn it off. Updates reuse a stable notification ID. Notification taps open the survey and retain any saved draft, including when the app starts from a closed state. The OS notification schedule is the source of truth; no backend, push token or assessment upload is needed. Notification content contains no answers or scores.
 
 The browser preview shows these settings but cannot schedule reminders. Build a new native binary after adding the notification plugin. Android battery restrictions, iOS Focus and OS notification settings may delay or suppress delivery; this is not an exact alarm. Device testing remains required for delivery while closed, reboot, time-zone/DST changes, denied/revoked permission, schedule replacement and cancellation. Completing a survey leaves the recurring schedule unchanged.
 
-## Android APK and iOS builds
+## Android builds with GitHub Actions
 
-The repository includes EAS build profiles. Bundle export is not an APK or IPA. An Expo account/project and build credentials are required for cloud native builds. Android local builds require a JDK and Android SDK; iOS local builds require macOS and Xcode.
+No Expo account, EAS service, cloud-build token or Expo project connection is required.
+
+Open the repository **Actions** tab, select **Android APK**, and choose **Run workflow**. Builds also run when application code changes on main. After a successful run, download the `weiss-tracker-android-test-<run number>` artifact, unzip it, and install the APK on an Android phone. A SHA-256 checksum is included. Artifacts are retained for 30 days.
+
+The workflow generates the native Android project on GitHub's runner, then compiles it using Java, the Android SDK and Gradle. JavaScript is bundled into the APK, so the installed app does not need a development server. It targets ARM Android phones (arm64-v8a and armeabi-v7a).
+
+**Test builds only:** generated release builds use the template's public development signing key. Do not use this key for a production/store release or sensitive real-world deployment. Production releases need a private signing key held in GitHub Actions secrets and a device-tested release process. No signing secrets are currently required or uploaded by this workflow.
+
+For a local Android build with Java 17 and the Android SDK installed:
 
 ```sh
-pnpm dlx eas-cli login
-pnpm dlx eas-cli build:configure
-pnpm dlx eas-cli build --platform android --profile preview
-pnpm dlx eas-cli build --platform ios --profile preview
+pnpm exec expo prebuild --platform android --no-install
+cd android
+./gradlew :app:assembleRelease
 ```
 
-The Android preview profile produces an installable APK. iOS device distribution requires Apple signing/provisioning and registered devices for ad hoc builds. The simulator profile produces an iOS simulator build. Production profiles are for store delivery. Select your final application identifiers and publisher details before release.
+On Windows use `gradlew.bat` instead of `./gradlew`. Native folders are generated and ignored by Git. The app retains Expo's open-source development tools and native libraries for storage and notifications; these do not require its hosted service. Removing those libraries is a separate code migration.
 
-Official build reference: https://docs.expo.dev/build-reference/apk/
+iOS still uses the same application code, but is not built by this Android workflow. A local iOS build requires macOS/Xcode and appropriate Apple signing for installation or distribution.
 
 ## Privacy and limitations
 

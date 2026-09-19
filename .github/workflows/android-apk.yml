@@ -1,0 +1,58 @@
+name: Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ['**/*.md', 'LICENSE*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CI: '1'
+      EXPO_NO_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install package manager
+        run: npm install --global pnpm@11.19.0
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Validate application
+        run: |
+          pnpm typecheck
+          pnpm test
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Generate native Android project locally
+        run: pnpm exec expo prebuild --platform android --no-install
+      - name: Build standalone test APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease --no-daemon --max-workers=2 -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+      - name: Package APK and checksum
+        run: |
+          mkdir -p apk
+          cp android/app/build/outputs/apk/release/app-release.apk apk/weiss-tracker-android-test.apk
+          cd apk
+          sha256sum weiss-tracker-android-test.apk > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: weiss-tracker-android-test-${{ github.run_number }}
+          path: apk/
+          if-no-files-found: error
+          retention-days: 30
