@@ -8,7 +8,7 @@ An Android/iOS personal WFIRS-S tracker built with React Native. A browser previ
 
 ## Website
 
-Open https://leothorn.github.io/weiss-tracker/ on a phone or computer. No installation is needed. Answers stay in the browser; clearing its storage removes them, and they do not sync across devices. Exports are available from Privacy. Native monthly notifications are not available on the website.
+Open https://leothorn.github.io/weiss-tracker/ on a phone or computer. No installation is needed. Answers are encrypted in this browser’s IndexedDB; clearing its storage removes them, and they do not sync across devices. Exports are available from Privacy. Native monthly notifications are not available on the website.
 
 The Deploy website workflow exports and publishes the site on changes to main. The repository subpath is configured only when GITHUB_PAGES=true so native builds and local previews keep their normal paths.
 
@@ -68,7 +68,7 @@ iOS still uses the same application code, but is not built by this Android workf
 
 Native responses use Expo SecureStore (Android encrypted storage / iOS Keychain). Each assessment is a separate item. Android backups are disabled. iOS Keychain retention after uninstall depends on the OS; do not assume uninstall reliably erases data. Use the app's delete action for records. The ID index grows with history and has not been stress-tested for multi-year volumes.
 
-The browser preview uses unencrypted localStorage; use sample answers there. JSON exports are plaintext and leave app protection when shared. No import, sync, multi-user profiles, authentication or clinician dashboard is implemented. Keep exports before changing devices. Physical-device testing, accessibility review and lifecycle/storage failure testing are required before a public release.
+The website encrypts the draft and all completed assessments with a nonextractable AES-256-GCM key held in the same browser’s IndexedDB. Existing localStorage answers are migrated and removed only after an encrypted copy is committed and checked. This is automatic unlock: anyone who can use this browser or run code in its origin can open the answers, and clearing browser data loses both key and data. JSON exports are plaintext and leave app protection when shared. No import, sync, multi-user profiles, authentication or clinician dashboard is implemented. Keep exports before changing devices. Physical-device testing, accessibility review and lifecycle/storage failure testing are required before a public release.
 
 ## Questionnaire rights and software licensing
 
