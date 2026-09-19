@@ -8,7 +8,7 @@ An Android/iOS personal WFIRS-S tracker built with React Native. A browser previ
 
 ## Website
 
-Open https://leothorn.github.io/weiss-tracker/ on a phone or computer. No installation is needed. Answers are encrypted in this browser’s IndexedDB; clearing its storage removes them, and they do not sync across devices. Exports are available from Privacy. Native monthly notifications are not available on the website.
+Open https://leothorn.github.io/weiss-tracker/ on a phone or computer. No installation is needed. Answers are encrypted in this browser’s IndexedDB; clearing its storage removes them, and they do not sync across devices. Exports are available from Privacy. The website can open a prefilled monthly event in Google Calendar; the user reviews and saves it there. Native monthly notifications remain available in the installed apps.
 
 The Deploy website workflow exports and publishes the site on changes to main. The repository subpath is configured only when GITHUB_PAGES=true so native builds and local previews keep their normal paths.
 
@@ -40,7 +40,7 @@ pnpm export
 
 The Reminders tab schedules one repeating local notification on Android/iOS. Users choose a monthly day (1-28) and local time, enable notifications explicitly, edit the schedule, or turn it off. Updates reuse a stable notification ID. Notification taps open the survey and retain any saved draft, including when the app starts from a closed state. The OS notification schedule is the source of truth; no backend, push token or assessment upload is needed. Notification content contains no answers or scores.
 
-The browser preview shows these settings but cannot schedule reminders. Build a new native binary after adding the notification plugin. Android battery restrictions, iOS Focus and OS notification settings may delay or suppress delivery; this is not an exact alarm. Device testing remains required for delivery while closed, reboot, time-zone/DST changes, denied/revoked permission, schedule replacement and cancellation. Completing a survey leaves the recurring schedule unchanged.
+On the website, the Reminders tab opens a prefilled monthly Google Calendar event using the selected day and time. The user must save it in Google Calendar; that calendar controls alerts, changes and cancellation. The tracker sends no answers or scores. The website itself does not schedule background notifications. Build a new native binary after adding the notification plugin. Android battery restrictions, iOS Focus and OS notification settings may delay or suppress delivery; this is not an exact alarm. Device testing remains required for delivery while closed, reboot, time-zone/DST changes, denied/revoked permission, schedule replacement and cancellation. Completing a survey leaves the recurring schedule unchanged.
 
 ## Android builds with GitHub Actions
 
