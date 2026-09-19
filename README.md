@@ -6,6 +6,12 @@ An Android/iOS personal WFIRS-S tracker built with React Native. A browser previ
 
 **Status:** early working prototype. Android, iOS and web JavaScript bundles have been compiled; signed installable releases and physical-device validation are not yet available. No real assessment data is included in this repository.
 
+## Website
+
+Open https://leothorn.github.io/weiss-tracker/ on a phone or computer. No installation is needed. Answers stay in the browser; clearing its storage removes them, and they do not sync across devices. Exports are available from Privacy. Native monthly notifications are not available on the website.
+
+The Deploy website workflow exports and publishes the site on changes to main. The repository subpath is configured only when GITHUB_PAGES=true so native builds and local previews keep their normal paths.
+
 ## Included
 
 - All 69 items from the supplied two-page WFIRS-S, in seven domains.
