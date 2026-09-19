@@ -6,6 +6,16 @@ import {SafeAreaProvider,SafeAreaView} from 'react-native-safe-area-context';
 import {domains,questions,choices,score,complete} from './src/questionnaire.mjs';
 import {Assessment,Answers,Answer,loadRecords,saveRecord,deleteRecord,loadDraft,saveDraft} from './src/storage';
 
+// Subtle section colours are decorative; section names remain visible.
+const sectionColours:Record<string,{background:string;accent:string}>={
+ A:{background:'#EEF5ED',accent:'#3F6950'},
+ B:{background:'#EDF3FA',accent:'#365F86'},
+ C:{background:'#F2EEFA',accent:'#69518C'},
+ D:{background:'#FCF2E7',accent:'#875B30'},
+ E:{background:'#FAEEF2',accent:'#8A4D66'},
+ F:{background:'#EAF5F4',accent:'#316E6B'},
+ G:{background:'#F2F1ED',accent:'#66614D'},
+};
 const fmt=(v:number|null)=>v===null?'—':v.toFixed(2);
 const date=(v:string)=>new Date(v).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
 function Button({label,onPress,quiet=false,disabled=false}:{label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean}) {return <Pressable accessibilityRole="button" disabled={disabled} onPress={onPress} style={[s.button,quiet&&s.quiet,disabled&&{opacity:.45}]}><Text style={[s.buttonText,quiet&&{color:'#24665D'}]}>{label}</Text></Pressable>;}
@@ -16,6 +26,7 @@ export default function App(){
  useEffect(()=>{void load();},[]);
  useEffect(()=>{if(!ready)return;return onReminderOpened(()=>{setShowPrivacy(true);setTaking(false);setSelected(null);setTab('Today');scroll.current?.scrollTo({y:0,animated:false});});},[ready]);
  const currentQuestion=questions[questionIndex];
+ const sectionColour=sectionColours[currentQuestion.domain];
  const latest=records[0],previous=records[1];const count=questions.filter(q=>answers[q.id]!==undefined).length;
  function choose(id:string,value:Answer){const next={...answers,[id]:value};setAnswers(next);queue.current=queue.current.then(()=>saveDraft(next)).catch(()=>{setError('Your latest answers could not be saved. Keep this screen open and try again.');});}
  async function finish(){if(busy||!complete(answers))return;setBusy(true);setError('');try{await queue.current;const now=new Date();const record:Assessment={id:`${now.getTime()}_${Math.random().toString(36).slice(2,9)}`,date:now.toISOString(),version:1,answers:{...answers}};await saveRecord(record);setRecords(await loadRecords());setTaking(false);setSelected(record);setTab('History');await saveDraft({});setAnswers({});}catch{setError('Saving did not finish. Your answers are still available; please try again.');}finally{setBusy(false);}}
@@ -41,10 +52,10 @@ export default function App(){
  <Button label="Not now" quiet onPress={()=>{setShowPrivacy(false);scroll.current?.scrollTo({y:0,animated:false});}}/>
  </>:taking?<>
  <View style={s.row}><Text style={s.eyebrow}>MONTHLY CHECK-IN</Text><Pressable onPress={()=>setTaking(false)}><Text style={s.link}>Save & close</Text></Pressable></View>
- <Text style={s.heading}>{domains.find(d=>d.id===currentQuestion.domain)?.name}</Text><Text style={s.muted}>Rate how your emotional or behavioural problems have affected this item in the last month.</Text>
+ <View style={{backgroundColor:sectionColour.background,borderLeftWidth:4,borderLeftColor:sectionColour.accent,borderRadius:12,padding:14}}><Text style={[s.heading,{color:sectionColour.accent}]}>{domains.find(d=>d.id===currentQuestion.domain)?.name}</Text></View><Text style={s.muted}>Rate how your emotional or behavioural problems have affected this item in the last month.</Text>
  <View style={s.row}><Text accessibilityLiveRegion="polite" style={s.body}>Question {questionIndex+1} of {questions.length}</Text><Text style={s.small}>{count} answered · {Math.round(count/questions.length*100)}%</Text></View>
- <View accessibilityRole="progressbar" accessibilityLabel="Assessment completion" accessibilityValue={{min:0,max:questions.length,now:count,text:`${count} of ${questions.length} answered`}} style={s.track}><View style={[s.fill,{width:`${count/questions.length*100}%`}]} /></View>
- <View key={currentQuestion.id} style={s.card}><Text accessibilityRole="header" style={s.question}>{currentQuestion.text}</Text><View accessibilityRole="radiogroup" accessibilityLabel={currentQuestion.text} style={s.options}>{choices.map(c=><Pressable key={c.value} accessibilityRole="radio" accessibilityLabel={`${c.value==='na'?'N/A':c.value}: ${c.label}`} accessibilityState={{checked:answers[currentQuestion.id]===c.value,disabled:busy}} disabled={busy} onPress={()=>choose(currentQuestion.id,c.value as Answer)} style={[s.option,answers[currentQuestion.id]===c.value&&s.chosen]}><Text style={[s.optionNumber,answers[currentQuestion.id]===c.value&&s.chosenText]}>{c.value==='na'?'N/A':c.value}</Text><Text style={[s.optionLabel,answers[currentQuestion.id]===c.value&&s.chosenText]}>{c.label}</Text></Pressable>)}</View></View>
+ <View accessibilityRole="progressbar" accessibilityLabel="Assessment completion" accessibilityValue={{min:0,max:questions.length,now:count,text:`${count} of ${questions.length} answered`}} style={s.track}><View style={[s.fill,{width:`${count/questions.length*100}%`,backgroundColor:sectionColour.accent}]} /></View>
+ <View key={currentQuestion.id} style={[s.card,{backgroundColor:sectionColour.background,borderColor:sectionColour.accent}]}><Text accessibilityRole="header" style={s.question}>{currentQuestion.text}</Text><View accessibilityRole="radiogroup" accessibilityLabel={currentQuestion.text} style={s.options}>{choices.map(c=><Pressable key={c.value} accessibilityRole="radio" accessibilityLabel={`${c.value==='na'?'N/A':c.value}: ${c.label}`} accessibilityState={{checked:answers[currentQuestion.id]===c.value,disabled:busy}} disabled={busy} onPress={()=>choose(currentQuestion.id,c.value as Answer)} style={[s.option,{backgroundColor:"#FFFFFF"},answers[currentQuestion.id]===c.value&&{backgroundColor:sectionColour.accent,borderColor:sectionColour.accent}]}><Text style={[s.optionNumber,answers[currentQuestion.id]===c.value&&s.chosenText]}>{c.value==='na'?'N/A':c.value}</Text><Text style={[s.optionLabel,answers[currentQuestion.id]===c.value&&s.chosenText]}>{c.label}</Text></Pressable>)}</View></View>
  <View style={s.row}><Button label="← Back" quiet disabled={questionIndex===0||busy} onPress={()=>{setQuestionIndex(questionIndex-1);scroll.current?.scrollTo({y:0,animated:false});}} />{questionIndex<questions.length-1?<Button label="Next →" disabled={answers[currentQuestion.id]===undefined||busy} onPress={()=>{setQuestionIndex(questionIndex+1);scroll.current?.scrollTo({y:0,animated:false});}} />:<Button label={busy?'Saving…':'Finish assessment'} disabled={!complete(answers)||busy} onPress={()=>void finish()} />}</View>
  <Text style={s.small}>Choose one response, then continue. Your progress is saved on this device, so you can close and return anytime.</Text>
  </>:selected?<>
