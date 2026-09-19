@@ -15,13 +15,14 @@ The Deploy website workflow exports and publishes the site on changes to main. T
 ## Included
 
 - All 69 items from the supplied two-page WFIRS-S, in seven domains.
+- A saved check-in profile asks about work, school, driving, age group and whether to include three sexual-topic items. Age never determines that choice. Only applicable questions appear, and each completed assessment preserves the profile used.
 - Explicit 0, 1, 2, 3 or N/A responses, with resumable drafts.
 - Dated completed assessments and review of every original answer.
 - Seven domain means and an overall mean; domain totals and counts of items rated 2 or 3.
 - Interactive line graphs for overall and seven area means on a fixed 0–3 scale, with dated check-ins and applicable-item counts so changes in N/A coverage are visible.
 - Native secure storage, no account or backend, manual JSON export and individual deletion.
 
-N/A and unanswered items are excluded from scoring. Completion requires all 69 responses, including explicit N/A where appropriate. An all-N/A assessment has no mean (shown as a dash), not a zero mean. Overall means use all rated items, rather than averaging the seven domain means. This is descriptive tracking, without diagnostic thresholds or treatment recommendations.
+N/A and unanswered items are excluded from scoring. Completion requires a response to every displayed question. Skipped questions are stored as N/A in the complete 69-item record, while users can still choose N/A for displayed questions. An all-N/A assessment has no mean (shown as a dash), not a zero mean. Overall means use all rated items, rather than averaging the seven domain means. This is descriptive tracking, without diagnostic thresholds or treatment recommendations.
 
 ## Development
 

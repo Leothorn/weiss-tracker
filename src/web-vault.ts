@@ -1,11 +1,12 @@
 import {validRecord} from './questionnaire.mjs';
-import type {Answers,Assessment} from './storage';
+import {validProfile} from './profile.mjs';
+import type {Answers,Assessment,Profile} from './storage';
 
 const DB_NAME='weiss_secure_v1';
 const STORE='vault';
 const LEGACY_INDEX='weiss_index_v1';
 const LEGACY_DRAFT='weiss_draft_v1';
-type Vault={records:Assessment[];draft:Answers};
+type Vault={records:Assessment[];draft:Answers;profile:Profile|null};
 type Ciphertext={version:1;iv:number[];data:ArrayBuffer};
 
 function request<T>(value:IDBRequest<T>):Promise<T>{return new Promise((resolve,reject)=>{value.onsuccess=()=>resolve(value.result);value.onerror=()=>reject(value.error);});}
@@ -20,11 +21,11 @@ function readLegacy():Vault{
  const records=ids.map(id=>{const record=JSON.parse(localStorage.getItem(`weiss_${id}`)??'null');if(!validRecord(record))throw Error('A saved assessment could not be migrated.');return record as Assessment;});
  const draft=JSON.parse(localStorage.getItem(LEGACY_DRAFT)??'{}');
  if(!draft||typeof draft!=='object'||Array.isArray(draft))throw Error('Saved draft is invalid.');
- return {records,draft};
+ return {records,draft,profile:null};
 }
 function clearLegacy(vault:Vault){localStorage.removeItem(LEGACY_INDEX);localStorage.removeItem(LEGACY_DRAFT);for(const record of vault.records)localStorage.removeItem(`weiss_${record.id}`);}
 async function encrypt(key:CryptoKey,vault:Vault):Promise<Ciphertext>{const iv=crypto.getRandomValues(new Uint8Array(12));const data=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(vault)));return {version:1,iv:Array.from(iv),data};}
-async function decrypt(key:CryptoKey,value:Ciphertext):Promise<Vault>{if(value?.version!==1||!Array.isArray(value.iv)||value.iv.length!==12||!(value.data instanceof ArrayBuffer))throw Error('Encrypted browser data is invalid.');const bytes=await crypto.subtle.decrypt({name:'AES-GCM',iv:new Uint8Array(value.iv)},key,value.data);const vault=JSON.parse(new TextDecoder().decode(bytes));if(!vault||!Array.isArray(vault.records)||vault.records.some((r:unknown)=>!validRecord(r))||!vault.draft||typeof vault.draft!=='object'||Array.isArray(vault.draft))throw Error('Encrypted browser data is invalid.');return vault;}
+async function decrypt(key:CryptoKey,value:Ciphertext):Promise<Vault>{if(value?.version!==1||!Array.isArray(value.iv)||value.iv.length!==12||!(value.data instanceof ArrayBuffer))throw Error('Encrypted browser data is invalid.');const bytes=await crypto.subtle.decrypt({name:'AES-GCM',iv:new Uint8Array(value.iv)},key,value.data);const vault=JSON.parse(new TextDecoder().decode(bytes));if(!vault||!Array.isArray(vault.records)||vault.records.some((r:unknown)=>!validRecord(r))||!vault.draft||typeof vault.draft!=='object'||Array.isArray(vault.draft)||(vault.profile!=null&&!validProfile(vault.profile)))throw Error('Encrypted browser data is invalid.');return {...vault,profile:vault.profile??null};}
 
 let opening:Promise<{db:IDBDatabase;key:CryptoKey}>|undefined;
 async function initialise(){
@@ -52,3 +53,5 @@ export async function saveWebRecord(record:Assessment){await update(vault=>{vaul
 export async function deleteWebRecord(id:string){await update(vault=>{vault.records=vault.records.filter(r=>r.id!==id);});}
 export async function loadWebDraft(){return (await read()).draft;}
 export async function saveWebDraft(answers:Answers){await update(vault=>{vault.draft=answers;});}
+export async function loadWebProfile(){return (await read()).profile;}
+export async function saveWebProfile(profile:Profile){await update(vault=>{vault.profile=profile;});}
