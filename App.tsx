@@ -1,6 +1,7 @@
 import React, {useEffect,useRef,useState} from 'react';
 import {View,Text,ScrollView,Pressable,StyleSheet,Platform,Alert,Share} from 'react-native';
 import ReminderSettings from './src/ReminderSettings';
+import TrendChart from './src/TrendChart';
 import {onReminderOpened} from './src/reminders';
 import {SafeAreaProvider,SafeAreaView} from 'react-native-safe-area-context';
 import {domains,questions,choices,score,complete} from './src/questionnaire.mjs';
@@ -68,8 +69,8 @@ export default function App(){
  <Text style={s.small}>WFIRS-S tracks functional impairment. This tracker does not provide a diagnosis or treatment advice.</Text>
  </>:tab==='Trends'?<>
  <Text style={s.eyebrow}>THE BIGGER PICTURE</Text><Text style={s.title}>Change over time.</Text><Text style={s.muted}>Compare mean scores across your saved check-ins. Lower values indicate less reported difficulty.</Text>
- <View style={s.chips}>{[{id:'',name:'Overall'},...domains].map(d=><Pressable key={d.id} style={[s.chip,metric===d.id&&s.chosen]} onPress={()=>setMetric(d.id)}><Text style={metric===d.id?s.chosenText:s.body}>{d.name}</Text></Pressable>)}</View>
- {!records.length?<View style={s.card}><Text style={s.heading}>Give your progress a starting point</Text><Text style={s.muted}>Your first check-in will appear here.</Text><Button label="Start a check-in" onPress={openAssessment}/></View>:<View style={s.card}><Text style={s.heading}>{metric?domains.find(d=>d.id===metric)?.name:'Overall'} mean</Text>{[...records].reverse().map(r=>{const sc=score(r.answers,metric||undefined);return <Pressable key={r.id} onPress={()=>setSelected(r)} style={s.domain}><View style={s.row}><Text style={s.body}>{date(r.date)}</Text><Text style={s.value}>{fmt(sc.mean)}</Text></View><View style={s.trendTrack}><View style={[s.fill,{width:`${(sc.mean??0)/3*100}%`}]} /></View><Text style={s.small}>{sc.count} rated items · {sc.na} not applicable</Text></Pressable>;})}<Text style={s.small}>Scale: 0 to 3. Tap a check-in to see all answers.</Text></View>}
+ <View style={s.chips}>{[{id:'',name:'Overall'},...domains].map(d=><Pressable key={d.id} accessibilityRole="button" accessibilityState={{selected:metric===d.id}} style={[s.chip,metric===d.id&&s.chosen]} onPress={()=>setMetric(d.id)}><Text style={metric===d.id?s.chosenText:s.body}>{d.name}</Text></Pressable>)}</View>
+ {!records.length?<View style={s.card}><Text style={s.heading}>Give your progress a starting point</Text><Text style={s.muted}>Your first check-in will appear here.</Text><Button label="Start a check-in" onPress={openAssessment}/></View>:<View style={s.card}><Text style={s.heading}>{metric?domains.find(d=>d.id===metric)?.name:'Overall'} mean over time</Text><TrendChart records={records} metric={metric} color={sectionColours[metric]?.accent??'#24665D'} onSelect={setSelected}/></View>}
  {latest&&previous&&<View style={s.card}><Text style={s.heading}>Since your previous check-in</Text>{domains.map(d=>{const a=score(latest.answers,d.id),b=score(previous.answers,d.id);const delta=a.mean!==null&&b.mean!==null?a.mean-b.mean:null;return <View key={d.id} style={s.answerRow}><View style={{flex:1}}><Text style={s.body}>{d.name}</Text><Text style={s.small}>{b.count} → {a.count} rated items</Text></View><Text style={s.value}>{delta===null?'N/A':`${delta>0?'+':''}${delta.toFixed(2)}`}</Text></View>})}<Text style={s.muted}>Changes are descriptive. Different N/A responses can affect comparisons.</Text></View>}
  </>:tab==='Reminders'?<>
  <Text style={s.eyebrow}>MAKE TIME FOR YOURSELF</Text><Text style={s.title}>A gentle reminder.</Text><ReminderSettings/>

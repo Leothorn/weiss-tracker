@@ -18,7 +18,7 @@ The Deploy website workflow exports and publishes the site on changes to main. T
 - Explicit 0, 1, 2, 3 or N/A responses, with resumable drafts.
 - Dated completed assessments and review of every original answer.
 - Seven domain means and an overall mean; domain totals and counts of items rated 2 or 3.
-- Historical comparisons with applicable-item counts, so changes in N/A coverage are visible.
+- Interactive line graphs for overall and seven area means on a fixed 0–3 scale, with dated check-ins and applicable-item counts so changes in N/A coverage are visible.
 - Native secure storage, no account or backend, manual JSON export and individual deletion.
 
 N/A and unanswered items are excluded from scoring. Completion requires all 69 responses, including explicit N/A where appropriate. An all-N/A assessment has no mean (shown as a dash), not a zero mean. Overall means use all rated items, rather than averaging the seven domain means. This is descriptive tracking, without diagnostic thresholds or treatment recommendations.
