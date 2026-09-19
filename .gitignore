@@ -1,0 +1,17 @@
+node_modules/
+.pnpm-store/
+.expo/
+dist/
+source-page-*.png
+*.apk
+*.ipa
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+credentials.json
+weiss-assessments*.json
+*.log
