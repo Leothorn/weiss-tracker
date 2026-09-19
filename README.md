@@ -30,6 +30,12 @@ pnpm test
 pnpm export
 ```
 
+## Monthly reminders
+
+The Reminders tab schedules one repeating local notification on Android/iOS. Users choose a monthly day (1–28) and local time, enable notifications explicitly, edit the schedule, or turn it off. Updates reuse a stable notification ID. Notification taps open the survey and retain any saved draft, including when the app starts from a closed state. The OS notification schedule is the source of truth; no backend, push token or assessment upload is needed. Notification content contains no answers or scores.
+
+The browser preview shows these settings but cannot schedule reminders. Build a new native binary after adding the notification plugin. Android battery restrictions, iOS Focus and OS notification settings may delay or suppress delivery; this is not an exact alarm. Device testing remains required for delivery while closed, reboot, time-zone/DST changes, denied/revoked permission, schedule replacement and cancellation. Completing a survey leaves the recurring schedule unchanged.
+
 ## Android APK and iOS builds
 
 The repository includes EAS build profiles. Bundle export is not an APK or IPA. An Expo account/project and build credentials are required for cloud native builds. Android local builds require a JDK and Android SDK; iOS local builds require macOS and Xcode.
@@ -49,7 +55,7 @@ Official build reference: https://docs.expo.dev/build-reference/apk/
 
 Native responses use Expo SecureStore (Android encrypted storage / iOS Keychain). Each assessment is a separate item. Android backups are disabled. iOS Keychain retention after uninstall depends on the OS; do not assume uninstall reliably erases data. Use the app's delete action for records. The ID index grows with history and has not been stress-tested for multi-year volumes.
 
-The browser preview uses unencrypted localStorage; use sample answers there. JSON exports are plaintext and leave app protection when shared. No import, sync, reminders, multi-user profiles, authentication or clinician dashboard is implemented. Keep exports before changing devices. Physical-device testing, accessibility review and lifecycle/storage failure testing are required before a public release.
+The browser preview uses unencrypted localStorage; use sample answers there. JSON exports are plaintext and leave app protection when shared. No import, sync, multi-user profiles, authentication or clinician dashboard is implemented. Keep exports before changing devices. Physical-device testing, accessibility review and lifecycle/storage failure testing are required before a public release.
 
 ## Questionnaire rights and software licensing
 

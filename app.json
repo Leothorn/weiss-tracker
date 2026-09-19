@@ -1,1 +1,32 @@
-{"expo":{"name":"Weiss · My Progress","slug":"weiss-my-progress","version":"1.0.0","orientation":"portrait","userInterfaceStyle":"light","ios":{"supportsTablet":true,"bundleIdentifier":"com.weisstracker.myprogress","config":{"usesNonExemptEncryption":false}},"android":{"package":"com.weisstracker.myprogress","allowBackup":false},"plugins":["expo-secure-store"],"web":{"bundler":"metro"}}}
+{
+  "expo": {
+    "name": "Weiss \u00c2\u00b7 My Progress",
+    "slug": "weiss-my-progress",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.weisstracker.myprogress",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.weisstracker.myprogress",
+      "allowBackup": false
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#24665D"
+        }
+      ]
+    ],
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
